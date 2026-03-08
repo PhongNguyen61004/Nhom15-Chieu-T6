@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BE1.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("users")]
     [Produces("application/json")]
     public class UserController : ControllerBase
     {
@@ -50,32 +50,32 @@ namespace BE1.Controllers
                 new { success = true, message = "Tạo người dùng thành công", data = user });
         }
         [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(string id, [FromBody] UserDto dto)
-    {
-        var updated = await _userService.UpdateUser(id, dto);
-        if (!updated)
-            return NotFound(new { success = false, message = $"Không tìm thấy user với ID: {id}" });
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Update(string id, [FromBody] UserDto dto)
+        {
+            var updated = await _userService.UpdateUser(id, dto);
+            if (!updated)
+                return NotFound(new { success = false, message = $"Không tìm thấy user với ID: {id}" });
 
-        return Ok(new { success = true, message = "Cập nhật thành công" });
-    }
+            return Ok(new { success = true, message = "Cập nhật thành công" });
+        }
 
-    /// <summary>Xóa người dùng</summary>
-    /// <param name="id">MongoDB ObjectId</param>
-    /// <response code="200">Xóa thành công</response>
-    /// <response code="404">Không tìm thấy</response>
-    [HttpDelete("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var deleted = await _userService.DeleteUser(id);
-        if (!deleted)
-            return NotFound(new { success = false, message = $"Không tìm thấy user với ID: {id}" });
+        /// <summary>Xóa người dùng</summary>
+        /// <param name="id">MongoDB ObjectId</param>
+        /// <response code="200">Xóa thành công</response>
+        /// <response code="404">Không tìm thấy</response>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var deleted = await _userService.DeleteUser(id);
+            if (!deleted)
+                return NotFound(new { success = false, message = $"Không tìm thấy user với ID: {id}" });
 
-        return Ok(new { success = true, message = "Xóa người dùng thành công" });
-    }
+            return Ok(new { success = true, message = "Xóa người dùng thành công" });
+        }
     }
 
 }
