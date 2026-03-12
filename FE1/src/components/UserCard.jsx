@@ -27,30 +27,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
         </div>
       </div>
 
-      <div className="card-content">
-        <div className="user-stats">
-          <div className="stat">
-            <span className="stat-value">42</span>
-            <span className="stat-label">Posts</span>
-          </div>
-          <div className="stat">
-            <span className="stat-value">1.2K</span>
-            <span className="stat-label">Reactions</span>
-          </div>
-          <div className="stat">
-            <span className="stat-value">156</span>
-            <span className="stat-label">Followers</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="card-footer">
-        <div className="user-tags">
-          <span className="tag">#developer</span>
-          <span className="tag">#react</span>
-          <span className="tag">#javascript</span>
-        </div>
-      </div>
+     
     </article>
   );
 };
