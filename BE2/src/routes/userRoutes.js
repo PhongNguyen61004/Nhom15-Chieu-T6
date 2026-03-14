@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 // Đường dẫn: BASE_API/users/:id -> Lấy theo id số (ví dụ: /users/1)
 router.get('/:id', async (req, res) => {
   try {
-    const user = await User.findOne({ id: req.params.id });
+    const user = await User.findOne({ id: Number(req.params.id) });
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
