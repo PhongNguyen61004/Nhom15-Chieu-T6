@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// 1. Import các hàm "xịn" mà bạn đã viết bên userController
+// 1. Import các hàm đã viết bên userController
 const {
     getAllUsers,
     getUserById,

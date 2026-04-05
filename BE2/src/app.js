@@ -5,6 +5,11 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const postRoutes = require('./routes/postRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+const roleRoutes = require('./routes/roleRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +22,10 @@ connectDB();
 
 // Routes
 app.use('/users', userRoutes);
+app.use('/posts', postRoutes);
+app.use('/comments', commentRoutes);
+app.use('/roles', roleRoutes);
+app.use('/admin', adminRoutes);
 
 app.get('/', (req, res) => {
     res.json({ message: 'API is running 🚀' });
