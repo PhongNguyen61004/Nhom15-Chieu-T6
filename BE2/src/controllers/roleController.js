@@ -1,33 +1,36 @@
-const Role = require('../models/Role');
 const User = require('../models/User');
 
-// 1. Lấy danh sách tất cả các Role (Dùng cho giao diện Admin)
-exports.getAllRoles = async (req, res) => {
+// 1. API Xem danh sách Roles (Trả về danh sách cố định luôn)
+exports.getAllRoles = (req, res) => {
   try {
-    const roles = await Role.find();
+    // Vì ta lưu dạng chữ trong User, nên BE chỉ cần báo cho FE biết hệ thống có các quyền này
+    const roles = [
+      { roleValue: 'user', description: 'Người dùng bình thường' },
+      { roleValue: 'admin', description: 'Quản trị viên hệ thống' }
+    ];
+    
     res.status(200).json({ success: true, count: roles.length, data: roles });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// 2. Cấp lại quyền cho User (Tính năng cốt lõi)
-// Khi Admin bấm nút lưu, FE sẽ gửi lên { "roleId": "60f123..." }
+// 2. API Cấp quyền cho User (Sửa lại để cập nhật trường 'role' dạng chữ)
 exports.assignRoleToUser = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const newRoleId = req.body.roleId;
+    const newRole = req.body.role; // FE sẽ gửi lên { "role": "admin" }
 
-    // Kiểm tra xem cái quyền (role) mà Admin định cấp có tồn tại thật không
-    const roleExists = await Role.findById(newRoleId);
-    if (!roleExists) {
-      return res.status(404).json({ success: false, message: 'Quyền này không tồn tại trong hệ thống!' });
+    // Kiểm tra xem quyền gửi lên có hợp lệ không
+    const validRoles = ['user', 'admin'];
+    if (!validRoles.includes(newRole)) {
+      return res.status(400).json({ success: false, message: 'Quyền này không hợp lệ!' });
     }
 
-    // Cập nhật lại roleId cho User
+    // Cập nhật thẳng vào trường 'role' của User
     const updatedUser = await User.findByIdAndUpdate(
       userId, 
-      { roleId: newRoleId }, 
+      { role: newRole }, 
       { new: true }
     );
 
@@ -37,7 +40,7 @@ exports.assignRoleToUser = async (req, res) => {
 
     res.status(200).json({ 
       success: true, 
-      message: `Đã cấp quyền ${roleExists.roleName} thành công cho user!`,
+      message: `Đã cấp quyền [${newRole}] thành công!`,
       data: updatedUser 
     });
   } catch (err) {
