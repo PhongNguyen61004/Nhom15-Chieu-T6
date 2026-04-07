@@ -8,7 +8,7 @@ const { getAllRoles, assignRoleToUser } = require('../controllers/roleController
 const { isAdmin } = require('../middlewares/authMiddleware');
 
 // Route này isAdmin mới được danh sách quyền 
-router.get('/', isAdmin, getAllRoles);
+router.get('/', getAllRoles);
 
 // ĐẶT MIDDLEWARE VÀO ĐÂY: (Request) chạy qua đường dẫn -> Gặp isAdmin kiểm tra -> Pass tới assignRoleToUser
 router.put('/assign/:userId', isAdmin, assignRoleToUser);
