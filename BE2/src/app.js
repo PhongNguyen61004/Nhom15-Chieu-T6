@@ -1,7 +1,7 @@
 const path = require('path');
 // Nạp file .env từ thư mục gốc
 require('dotenv').config();
-const path=require('path');
+
 
 const express = require('express');
 const cors = require('cors');
