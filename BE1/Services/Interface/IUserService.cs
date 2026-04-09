@@ -1,18 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BE1.DTOs;
+using BE1.DTOs.Auth;
 using BE1.Models;
 
-namespace BE1.Services.Interface
+namespace BE1.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<List<User>> GetAllUsers();
-        Task<User> GetUserById(string id);
-        Task<User> CreateUser(UserDto userDto);
-        Task<bool> UpdateUser(string id, UserDto userDto);
-        Task<bool> DeleteUser(string id);
+        Task<UserResponse> RegisterAsync(RegisterRequest request);
+        Task<LoginResponse> LoginAsync(LoginRequest request);
+        Task<UserResponse?> GetByIdAsync(string id);
+        Task<UserResponse?> GetByUsernameAsync(string username);
+        Task<bool> UpdateAsync(string id, User user);
     }
 }
