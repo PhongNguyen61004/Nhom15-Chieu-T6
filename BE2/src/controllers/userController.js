@@ -3,8 +3,25 @@ const User = require('../models/User');
 // 1. GET ALL
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find();
-    res.status(200).json({ success: true, data: users });
+
+    const { name } = req.query;
+    let query = {};
+    if (name) {
+      query.name = { $regex: name, $options: 'i' }; // Tìm kiếm không phân biệt hoa thường
+    }
+    const users = await User.find(query);
+    res.status(200).json({ success: true, count: users.length, data: users });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+// 2. Lấy 1 User theo ID số (GET /users/:id)
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findOne( req.params.id );
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
+res.status(200).json({ success: true, data: user }); 
+
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -15,6 +32,9 @@ exports.createUser = async (req, res) => {
   try {
     const { username, email } = req.body; // ✅ Đã bỏ id
     const newUser = new User({
+
+      id,
+
       username,
       email
     });
@@ -28,11 +48,12 @@ exports.createUser = async (req, res) => {
 // 3. UPDATE
 exports.updateUser = async (req, res) => {
   try {
-   
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
+
+    const updatedUser = await User.findOneAndUpdate(
+      req.params.id, 
+      req.body, 
+      { new: true, runValidators: true } // Trả về bản ghi mới sau khi sửa và kiểm tra dữ liệu
+
     );
 
     if (!updatedUser) {
@@ -47,7 +68,9 @@ exports.updateUser = async (req, res) => {
 // 4. DELETE
 exports.deleteUser = async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+
+    const deletedUser = await User.findOneAndDelete( req.params.id );
+
 
     if (!deletedUser) {
       return res.status(404).json({ success: false, message: "User không tồn tại" });
