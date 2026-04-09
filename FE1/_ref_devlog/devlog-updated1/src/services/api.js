@@ -1,18 +1,7 @@
 // ─── API SERVICE LAYER ────────────────────────────────────────────────────────
 import { MOCK_POSTS, MOCK_COMMENTS } from "../constants/mockData";
 
-function normalizeBaseUrl(baseUrl) {
-  const trimmed = String(baseUrl || "").replace(/\/+$/, "");
-  if (!trimmed) return "/api";
-  if (trimmed.endsWith("/api")) return trimmed;
-  return `${trimmed}/api`;
-}
-
-const RAW_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "/api";
-const BASE_URL = normalizeBaseUrl(RAW_BASE_URL);
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const DEMO_AUTHOR_ID = "670000000000000000000010";
 
 function minutesFromReadTime(readTime) {
@@ -26,7 +15,7 @@ function normalizeMockPost(post, index = 0) {
     id: post.id,
     title: post.title,
     content: post.excerpt || "",
-    coverImage: `https://picsum.photos/id/${101 + index}/800/400`,
+    coverImage: "",
     tags: (post.tags || []).map((t) => (typeof t === "string" ? t : t.label)).filter(Boolean),
     viewsCount: post.viewsCount ?? (post.upvotes || 0) * 3,
     likesCount: post.likesCount ?? post.upvotes ?? 0,
@@ -108,8 +97,7 @@ export const postService = {
   getAll: async () => {
     try {
       return await request("/posts");
-    } catch (err) {
-      console.warn("[postService.getAll] fallback to mock posts:", err?.message || err);
+    } catch {
       return getMockPosts();
     }
   },
