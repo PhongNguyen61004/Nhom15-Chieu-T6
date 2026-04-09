@@ -1,4 +1,3 @@
-# BE2/Dockerfile
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
@@ -12,4 +11,4 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "BE1.dll"]  # Đổi BE2.dll thành tên project của bạn
+ENTRYPOINT ["dotnet", "BE1.dll"]
