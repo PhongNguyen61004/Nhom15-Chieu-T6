@@ -60,6 +60,9 @@ namespace BE1.Services
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
+
+            // Tìm user theo username hoặc email
+>
             User? user = null;
 
             if (request.UsernameOrEmail.Contains("@"))
@@ -67,25 +70,13 @@ namespace BE1.Services
             else
                 user = await _userRepository.GetByUsernameAsync(request.UsernameOrEmail);
 
-            // ✅ Debug log - xoá sau khi fix
-            Console.WriteLine($"[DEBUG] User found: {user != null}");
-            Console.WriteLine($"[DEBUG] PasswordHash: '{user?.PasswordHash}'");
-            Console.WriteLine($"[DEBUG] Hash length: {user?.PasswordHash?.Length}");
 
-            if (user == null)
-                throw new Exception("User not found");
-
-            if (string.IsNullOrEmpty(user.PasswordHash))
-                throw new Exception("PasswordHash is empty - data issue");
-
-            if (!user.PasswordHash.StartsWith("$2"))
-                throw new Exception($"Invalid hash format: {user.PasswordHash.Substring(0, Math.Min(10, user.PasswordHash.Length))}");
-            if (string.IsNullOrEmpty(user.PasswordHash) || user.PasswordHash.Length != 60)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 throw new Exception("Invalid username/email or password");
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                throw new Exception("Wrong password");
+
             var userResponse = new UserResponse
-            {
+            {   
+
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,

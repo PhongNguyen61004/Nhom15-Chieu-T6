@@ -59,15 +59,6 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 // Thêm các service khác sau này ở đây
 // builder.Services.AddScoped<IPostService, PostService>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
 
 builder.Services.AddControllers();
 
@@ -101,6 +92,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-// app.UseAuthorization();
+
+app.UseAuthorization();
+>>>>>>> f0fdc05 (Restful API user, post, comment)
 app.MapControllers();
 app.Run();
