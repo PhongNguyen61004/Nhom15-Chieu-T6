@@ -34,7 +34,6 @@ appsettings.Development.json
 appsettings.Production.json
 secrets.json
 .env
-.env.*
 
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 *.log

@@ -1,13 +1,42 @@
 import axios from "axios";
 
-const API_URL = "https://nhom15-chieu-t6.onrender.com";
+const API = "https://nhom15-chieu-t6-ku61.onrender.com";
 
+const instance = axios.create({
+  baseURL: API,
+});
+
+// ✅ FIX HEADER
+instance.interceptors.request.use((config) => {
+  const userId = localStorage.getItem("userId");
+  if (userId) {
+    config.headers["x-user-id"] = userId;
+  }
+  return config;
+});
+
+// ================= USER =================
 export const userAPI = {
-  getAllUsers: () => axios.get(`${API_URL}/users`),
+  getAllUsers: () => instance.get("/users"),
 
-  createUser: (data) => axios.post(`${API_URL}/users`, data),
+  createUser: (data) => instance.post("/users", data),
 
-  updateUser: (id, data) => axios.put(`${API_URL}/users/${id}`, data),
+  deleteUser: (id) => instance.delete(`/users/${id}`),
 
-  deleteUser: (id) => axios.delete(`${API_URL}/users/${id}`)
+  updateUser: (id, data) => instance.put(`/users/${id}`, data),
+};
+
+// ================= COMMENT =================
+export const commentAPI = {
+  getAll: () => instance.get("/comments"),
+
+  delete: (id) => instance.delete(`/comments/${id}`),
+};
+
+// ================= ROLE =================
+export const roleAPI = {
+  getAll: () => instance.get("/roles"),
+
+  assignRole: (userId, role) =>
+    instance.put(`/roles/assign/${userId}`, { role }),
 };

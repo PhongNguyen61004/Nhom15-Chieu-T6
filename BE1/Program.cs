@@ -99,7 +99,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Swagger mở trực tiếp tại root
     });
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 // app.UseAuthorization();
 app.MapControllers();
