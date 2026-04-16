@@ -1,0 +1,196 @@
+openapi: 3.0.0
+info:
+  title: Blog API Project
+  version: 1.0.0
+  description: Tài liệu API BE2 cho dự án blog của nhóm 15
+servers:
+  - url: http://localhost:5000
+    description: Development
+  - url: https://xdpm-web-be2.onrender.com
+    description: Main server
+  - url: https://nhom15-chieu-t6-ku61.onrender.com
+    description: Test server
+
+# Cấu hình bảo mật (Cho Admin và Roles)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  # ==========================================
+  # 1. USERS API
+  # ==========================================
+  /users:
+    get:
+      summary: Lấy danh sách tất cả người dùng
+      tags: [Users]
+      responses:
+        200:
+          description: Trả về danh sách thành công
+    post:
+      summary: Tạo người dùng mới
+      tags: [Users]
+      responses:
+        201:
+          description: Đã tạo người dùng thành công
+
+  /users/{id}:
+    get:
+      summary: Lấy chi tiết người dùng theo ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Thành công
+
+  # ==========================================
+  # 2. ROLES API
+  # ==========================================
+  /roles:
+    get:
+      summary: Lấy danh sách tất cả các Role
+      tags: [Roles]
+      responses:
+        200:
+          description: Trả về danh sách các quyền
+
+  /roles/assign/{userId}:
+    put:
+      summary: Gán quyền cho người dùng (Chỉ Admin)
+      tags: [Roles]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roleId:
+                  type: string
+      responses:
+        200:
+          description: Cập nhật quyền thành công
+        403:
+          description: Forbidden - Không có quyền Admin
+
+  # ==========================================
+  # 3. POSTS API
+  # ==========================================
+  /posts:
+    get:
+      summary: Lấy danh sách tất cả bài viết
+      tags: [Posts]
+      responses:
+        200:
+          description: Thành công
+    post:
+      summary: Tạo một bài viết mới
+      tags: [Posts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+      responses:
+        201:
+          description: Tạo bài viết thành công
+
+  /posts/{id}:
+    get:
+      summary: Lấy chi tiết bài viết
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Thành công
+    put:
+      summary: Cập nhật bài viết
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Cập nhật thành công
+    delete:
+      summary: Xóa bài viết
+      tags: [Posts]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ==========================================
+  # 4. COMMENTS API
+  # ==========================================
+  /comments:
+    get:
+      summary: Lấy danh sách tất cả bình luận
+      tags: [Comments]
+      responses:
+        200:
+          description: Thành công
+
+  /comments/{id}:
+    delete:
+      summary: Xóa bình luận
+      tags: [Comments]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Xóa thành công
+
+  # ==========================================
+  # 5. ADMIN API
+  # ==========================================
+  /admin/stats:
+    get:
+      summary: Xem thống kê hệ thống (Chỉ Admin)
+      tags: [Admin]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Trả về dữ liệu thống kê
+        403:
+          description: Không có quyền truy cập
