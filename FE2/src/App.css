@@ -1,230 +1,283 @@
-:root {
-  --bg-color: #f8f9fa;
-  --surface-color: #ffffff;
-  --border-color: #e5e7eb;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --accent-color: #2563eb;
-  --accent-hover: #1d4ed8;
-  --danger-color: #ef4444;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-}
-
 body {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-}
-
-/* ===== LAYOUT ===== */
-
-.container {
-  display: flex;
-  width: 100vw;
-  min-height: 100vh;
   margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+  font-family: Arial, sans-serif;
+  background: #f6f8fa;
 }
 
-/* ===== SIDEBAR LEFT ===== */
-
-.sidebar-left {
-  width: 260px;
-  padding: 20px;
-  border-right: 1px solid var(--border-color);
-  background: var(--surface-color);
+.layout {
   display: flex;
-  flex-direction: column;
+  min-height: 100vh;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--accent-color);
-  margin-bottom: 30px;
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: #0d1117;
+  color: white;
+  padding: 20px;
+  
+  /* Thêm các dòng dưới đây */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto; /* Cho phép cuộn bên trong sidebar nếu menu quá dài */
 }
 
-.nav-menu {
-  list-style: none;
-  flex: 1;
+.sidebar h2 {
+  margin-bottom: 20px;
+  font-size: 20px;
 }
 
-.nav-item a {
+.sidebar a {
   display: block;
   padding: 12px;
-  border-radius: 8px;
+  margin: 8px 0;
+  color: #c9d1d9;
   text-decoration: none;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-
-.nav-item a:hover {
-  background: #f3f4f6;
-}
-
-.nav-item a.active {
-  background: #eff6ff;
-  color: var(--accent-color);
-  font-weight: bold;
-}
-
-.admin-profile {
-  display: flex;
-  align-items: center;
-  margin-top: auto;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  background: var(--accent-color);
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 10px;
-}
-
-/* ===== MAIN ===== */
-
-.main-content {
-  flex: 1;
-  background: var(--surface-color);
-  border-right: 1px solid var(--border-color);
-  min-width: 600px; /* Đảm bảo không bị quá hẹp khi thu nhỏ trình duyệt */
-  padding-bottom: 50px;
-  padding: 0;
-}
-
-.header {
-  padding: 16px;
-  border-bottom: 1px solid var(--border-color);
-  font-weight: bold;
-}
-
-.content-body {
-  padding: 20px;
-}
-
-/* ===== TABLE ===== */
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.data-table th, .data-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
+.sidebar a:hover {
+  background: #21262d;
 }
 
-.data-table th {
-  font-size: 14px;
-  color: var(--text-secondary);
+.sidebar a.active {
+  background: #238636;
+  color: white;
 }
 
-.action-btn {
-  padding: 6px 10px;
+/* CONTENT */
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* RIGHTBAR */
+.rightbar {
+  width: 260px;
+  background: white;
+  padding: 20px;
+  border-left: 1px solid #d0d7de;
+
+  /* Thêm các dòng dưới đây */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* CARD */
+.page-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #d0d7de;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+/* BUTTON */
+.github-btn {
+  background: #238636;
+  color: white;
   border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.github-btn:hover {
+  background: #2ea043;
+}
+
+.edit-btn {
+  background: #0969da;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 8px;
   border-radius: 6px;
   cursor: pointer;
 }
 
-.btn-edit {
-  background: #fef08a;
+.delete-btn {
+  background: #da3633;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.btn-delete {
-  background: #fee2e2;
-}
-
-/* ===== RIGHTBAR ===== */
-
-.sidebar-right {
-  width: 300px;
-  min-width: 300px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.search-bar {
+/* TABLE */
+.github-table {
   width: 100%;
-  padding: 10px;
+  border-collapse: collapse;
+}
+
+.github-table th,
+.github-table td {
+  padding: 14px;
+  border-bottom: 1px solid #d8dee4;
+  text-align: left;
+}
+
+.github-table th {
+  background: #f6f8fa;
+}
+
+/* BADGE */
+.badge {
+  background: #ddf4ff;
+  color: #0969da;
+  padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid var(--border-color);
-  margin-bottom: 20px;
+  font-size: 13px;
 }
 
-.widget-card {
-  background: var(--surface-color);
-  border: 1px solid var(--border-color);
+/* POST */
+.post-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.post-card {
+  border: 1px solid #d0d7de;
   border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
 }
 
-.stat-item {
+.post-footer {
+  margin-top: 20px;
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
 }
+/* ========================================= */
+/* BỔ SUNG STYLE CHO MODAL VÀ DASHBOARD      */
+/* ========================================= */
 
-/* ===== BUTTON ===== */
-
-button {
-  cursor: pointer;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent-color);
-  color: white;
-}
-
-button:hover {
-  background: var(--accent-hover);
-}
-
-/* ===== MODAL ===== */
-
+/* MODAL */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.4);
+  width: 100%;
+  height: 100%;
+  background: rgba(13, 17, 23, 0.6); /* Nền tối mờ xịn hơn */
+  backdrop-filter: blur(2px);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .modal {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0 8px 24px rgba(140, 149, 159, 0.2);
+  border: 1px solid #d0d7de;
+  overflow: hidden;
 }
 
-.modal input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-}
-.header-btn-add {
+.modal-header {
   display: flex;
-  justify-content: right;
+  justify-content: space-between;
   align-items: center;
+  padding: 16px 20px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #24292f;
+}
+
+.modal-header button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #57606a;
+  cursor: pointer;
+  padding: 0;
+}
+
+.modal-header button:hover {
+  color: #da3633;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-body input,
+.modal-body textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus {
+  outline: none;
+  border-color: #0969da;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+}
+
+.modal-body textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-body button[type="submit"] {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* DASHBOARD STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.stat-card h3 {
+  margin: 0 0 12px 0;
+  color: #57606a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+  color: #24292f;
 }
