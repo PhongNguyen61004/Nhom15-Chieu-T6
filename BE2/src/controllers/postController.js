@@ -4,7 +4,7 @@ const Post = require('../models/Post');
 exports.getAllPosts = async (req, res) => {
   try {
     // Luôn luôn lọc bỏ những bài đã bị "xóa mềm"
-    const posts = await Post.find({ isDeleted: false });
+    const posts = await Post.find({ isDeleted:{$ne: true}  });
     res.status(200).json({ success: true, count: posts.length, data: posts });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
