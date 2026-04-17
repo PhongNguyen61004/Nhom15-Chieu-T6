@@ -27,10 +27,9 @@ paths:
   # ==========================================
 
 #lấy token
-  /admin/login:
+  /users/login:
     post:
-      summary: Đăng nhập cho ADMIN
-      tags: [Users]
+      summary: Đăng nhập cho để lấy token ADMIN
       requestBody:
         required: true
         content:
