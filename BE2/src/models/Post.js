@@ -29,10 +29,7 @@ const postSchema = new mongoose.Schema({
   likesCount: { type: Number, default: 0 },
   commentsCount: { type: Number, default: 0 },
   bookmarksCount: { type: Number, default: 0 },
-  
   publishedAt: { type: Date },
-
-  
   isDeleted: { type: Boolean, default: false },
   
   // phân quyền public/private

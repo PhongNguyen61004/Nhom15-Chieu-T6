@@ -32,10 +32,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // --- Định nghĩa các Endpoint ---
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'API is running 🚀',
-    docs: '/api-docs' 
-  });
+  res.redirect('/api-docs');
 });
 
 app.use('/users', userRoutes);
@@ -48,7 +45,4 @@ app.use('/tags', tagRoutes);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on: http://localhost:${PORT}`);
   console.log(`API Docs available at: http://localhost:${PORT}/api-docs`);
-});
-app.get('/', (req, res) => {
-  res.redirect('/api-docs');
 });
