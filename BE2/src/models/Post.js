@@ -1,44 +1,45 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-  // Không khai báo 'id' nữa vì ta sẽ xài '_id' của MongoDB
-  userId: { 
-    type: String, // Trong ảnh đang là chuỗi "USER_ID_DUY"
-    required: true 
+  // Chuyển từ kiểu String sang ObjectId và đổi tên thành authorId
+  authorId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    required: true,
+    ref: 'User' 
   },
-  title: { 
-    type: String, 
-    required: true 
-  },
-  content: { 
-    type: String, 
-    required: true 
-  },
-  thumbnail: { 
-    type: String, // Link ảnh
-    default: "" 
-  },
+  title: { type: String, required: true },
+  slug: { type: String, unique: true }, 
+  content: { type: String, required: true },
+  
+  
+  coverImage: { type: String, default: "" },
+  
+  
+  tags: [{ type: String }], 
+  
   status: { 
     type: String, 
-    enum: ['published', 'draft', 'pending'], // Chỉ cho phép các trạng thái này
+    enum: ['published', 'draft', 'pending'], 
     default: 'published' 
   },
-  visibility: { 
-    type: String, 
-    enum: ['public', 'private'],
-    default: 'public' 
-  },
-  viewCount: { 
-    type: Number, 
-    default: 0 
-  },
-  isDeleted: { 
-    type: Boolean, 
-    default: false 
-  }
-}, {
-  timestamps: true, //  tự động sinh ra createdAt và updatedAt 
-});
+  
+  // Thêm các trường thống kê mới
+  readingTime: { type: Number, default: 0 },
+  viewsCount: { type: Number, default: 0 },
+  likesCount: { type: Number, default: 0 },
+  commentsCount: { type: Number, default: 0 },
+  bookmarksCount: { type: Number, default: 0 },
+  
+  publishedAt: { type: Date },
 
+  
+  isDeleted: { type: Boolean, default: false },
+  
+  // phân quyền public/private
+  visibility: { type: String, enum: ['public', 'private'], default: 'public' }
+
+}, {
+  timestamps: true, 
+});
 
 module.exports = mongoose.model('Post', postSchema, 'posts');

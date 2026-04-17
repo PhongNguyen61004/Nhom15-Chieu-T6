@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-
-const { getDashboardStats } = require('../controllers/adminController');
 const { isAdmin } = require('../middlewares/authMiddleware');
+const { getDashboardStats, banUser, unbanUser } = require('../controllers/adminController');
 
-// Đường dẫn: GET /admin/stats
-// Phải có isAdmin để chặn các User 
+router.put('/users/:id/ban', banUser);
+router.put('/users/:id/unban', unbanUser);
 router.get('/stats', isAdmin, getDashboardStats);
 
 module.exports = router;

@@ -1,25 +1,21 @@
 const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
-  postId: { 
-    type: String, 
-    required: true 
-  }, // Liên kết với _id của bài viết
-  userId: { 
-    type: String, 
-    required: true 
-  }, // Liên kết với userId của người bình luận
-  content: { 
-    type: String, 
-    required: true 
-  }, // Nội dung bình luận
-  isDeleted: { 
-    type: Boolean, 
-    default: false 
-  } // Tính năng Xóa mềm: true là bị Admin ẩn
+  
+  postId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Post' },
+  authorId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' }, 
+  
+  
+  parentId: { type: mongoose.Schema.Types.ObjectId, default: null, ref: 'Comment' }, 
+  content: { type: String, required: true },
+  likesCount: { type: Number, default: 0 },
+  isEdited: { type: Boolean, default: false },
+  depth: { type: Number, default: 0 },
+  
+  
+  isDeleted: { type: Boolean, default: false } 
 }, {
-  timestamps: true, // Tự động có createdAt và updatedAt
+  timestamps: true 
 });
-
 
 module.exports = mongoose.model('Comment', commentSchema);
