@@ -7,7 +7,7 @@ export default function Sidebar() {
 
       <NavLink to="/">Dashboard</NavLink>
       <NavLink to="/users">Users</NavLink>
-      <NavLink to="/roles">Roles</NavLink>
+      <NavLink to="/tags">Tags</NavLink>
       <NavLink to="/posts">Posts</NavLink>
       <NavLink to="/comments">Comments</NavLink>
     </div>

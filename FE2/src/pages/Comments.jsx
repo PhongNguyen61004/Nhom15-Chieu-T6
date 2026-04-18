@@ -1,57 +1,45 @@
 import { useEffect, useState } from "react";
-import API from "../api/api";
+import { getComments, deleteComment } from "../api/api";
 
 export default function Comments() {
   const [comments, setComments] = useState([]);
 
-  const fetchComments = async () => {
-    const res = await API.comments.getAll();
-    setComments(res.data.data);
+  const fetchData = async () => {
+    const res = await getComments();
+    setComments(res.data);
   };
 
   useEffect(() => {
-    fetchComments();
+    fetchData();
   }, []);
-
-  const deleteComment = async (id) => {
-    const confirmDelete = window.confirm("Bạn có chắc muốn xóa comment này?");
-    if (!confirmDelete) return;
-
-    try {
-      await API.comments.delete(id);
-      fetchComments();
-      alert("Xóa comment thành công");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div className="page-card">
-      <div className="page-header">
-        <h2>Comments Management</h2>
-      </div>
+      <h2>Comments</h2>
 
       <table className="github-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nội dung</th>
-            <th>User ID</th>
-            <th width="120">Actions</th>
+            <th>Content</th>
+            <th>Post ID</th>
+            <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
           {comments.map((c) => (
             <tr key={c._id}>
-              <td>{c._id}</td>
               <td>{c.content}</td>
-              <td>{c.userId}</td>
+              <td><span className="badge">{c.postId}</span></td>
               <td>
-                <button 
-                  className="delete-btn" 
-                  onClick={() => deleteComment(c._id)}
+                <span style={{ color: c.isDeleted ? 'red' : 'green' }}>
+                  {c.isDeleted ? 'Deleted (Soft)' : 'Active'}
+                </span>
+              </td>
+              <td>
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteComment(c._id).then(fetchData)}
                 >
                   Delete
                 </button>
