@@ -317,3 +317,36 @@ body {
   border-color: #0969da;
   box-shadow: 0 0 0 3px rgba(9,105,218,0.3);
 }
+/* Layout chính cho Admin */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f6f8fa;
+}
+
+.rightbar-wrapper {
+  width: 250px;
+  padding: 20px;
+  border-left: 1px solid #d0d7de;
+}
+
+/* CSS cho form trong page-card */
+.modal-form input, .modal-form textarea, .modal-form select {
+  width: 100%;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.modal-form input:focus {
+  border-color: #0969da;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+}
