@@ -5,11 +5,7 @@ using System.Threading.Tasks;
 
 namespace BE1.DTOs.Auth
 {
-<<<<<<< HEAD
-        public class UserResponse
-=======
     public class UserResponse
->>>>>>> dev
     {
         public string Id { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;

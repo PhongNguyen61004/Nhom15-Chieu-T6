@@ -1,22 +1,12 @@
-<<<<<<< HEAD
-using BE1.DTOs;
-using BE1.DTOs.Auth;
-using BE1.Services.Interfaces;
-=======
 using BE1.DTOs.Auth;
 using BE1.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
->>>>>>> dev
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace BE1.Controllers
 {
-<<<<<<< HEAD
-    [Route("api/[controller]")]
-=======
     [Route("api/users")]
->>>>>>> dev
     [ApiController]
     public class UserController : ControllerBase
     {
