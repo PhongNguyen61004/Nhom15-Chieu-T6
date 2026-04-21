@@ -6,10 +6,10 @@ namespace BE1.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserResponse> RegisterAsync(RegisterRequest request);
-        Task<LoginResponse> LoginAsync(LoginRequest request);
         Task<UserResponse?> GetByIdAsync(string id);
         Task<UserResponse?> GetByUsernameAsync(string username);
-        Task<bool> UpdateAsync(string id, User user);
+        Task<UserResponse?> GetMyProfileAsync(string currentUserId);
+        Task<UserResponse?> UpdateMyProfileAsync(string currentUserId, UpdateProfileRequest request);
+        Task ChangePasswordAsync(string currentUserId, ChangePasswordRequest request);
     }
 }
