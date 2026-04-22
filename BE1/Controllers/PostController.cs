@@ -17,7 +17,7 @@ namespace BE1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll() 
+        public async Task<IActionResult> GetAll()
             => Ok(await _postService.GetAllAsync());
 
         [HttpGet("{id}")]
@@ -32,11 +32,24 @@ namespace BE1.Controllers
             => Ok(await _postService.GetByAuthorIdAsync(authorId));
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] PostCreateRequest request, [FromHeader] string authorId)
+        public async Task<IActionResult> Create(
+    [FromBody] PostCreateRequest request
+)
         {
             try
             {
+                // 🔥 đọc thủ công (an toàn nhất)
+                var authorId = Request.Headers["authorId"].FirstOrDefault();
+
+                Console.WriteLine("AUTHOR HEADER: " + authorId);
+
+                if (string.IsNullOrEmpty(authorId))
+                {
+                    return BadRequest(new { message = "Missing authorId" });
+                }
+
                 var post = await _postService.CreateAsync(request, authorId);
+
                 return CreatedAtAction(nameof(GetById), new { id = post.Id }, post);
             }
             catch (Exception ex)
