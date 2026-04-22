@@ -1,0 +1,121 @@
+/* Container */
+.profile-hero {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* Top layout */
+.profile-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+/* Text */
+.profile-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #f4f4f5;
+}
+
+.profile-meta {
+  font-family: monospace;
+  font-size: 12px;
+  color: #71717a;
+  margin-bottom: 8px;
+}
+
+.profile-bio {
+  font-size: 14px;
+  color: #a1a1aa;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.btn-edit {
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.btn-follow {
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-follow:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.btn-follow.following {
+  background: #052e16;
+  border-color: #166534;
+  color: #22c55e;
+}
+
+/* Skills */
+.profile-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* Skill bar */
+.skill-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.skill-name {
+  font-family: monospace;
+  font-size: 12px;
+  color: #22d3ee;
+}
+
+.skill-track {
+  width: 32px;
+  height: 2px;
+  background: #3f3f46;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.skill-fill {
+  height: 100%;
+  background: #22d3ee;
+  border-radius: 999px;
+  transition: width 0.5s;
+}

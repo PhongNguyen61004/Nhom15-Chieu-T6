@@ -1,10 +1,11 @@
-// ─── NOTIFICATION COMPONENTS ─────────────────────────────────────────────────
-
+import "./index.css";
 import { Avatar } from "../ui";
 
-// ─── NotifItem ────────────────────────────────────────────────────────────────
+// ─── NotifItem ───────────────────────────
+
 
 export function NotifItem({ notif, onRead }) {
+  const initials = notif?.initials || notif?.actor?.charAt(0)?.toUpperCase() || "U";
   function handleClick() {
     if (!notif.read) onRead?.(notif.id);
   }
@@ -12,51 +13,41 @@ export function NotifItem({ notif, onRead }) {
   return (
     <div
       onClick={handleClick}
-      className={`flex items-start gap-3 px-4 py-3 border-b border-zinc-800 cursor-pointer hover:bg-zinc-800/50 transition-colors ${
-        !notif.read ? "bg-zinc-800/30" : ""
-      }`}
+      className={`notif-item ${!notif.read ? "unread" : ""}`}
     >
-      {/* Unread dot */}
-      <div
-        className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-          !notif.read ? "bg-green-400" : "border border-zinc-700"
-        }`}
-      />
+      {/* Dot */}
+      <div className={`notif-dot ${!notif.read ? "active" : ""}`} />
 
-      <Avatar initials={notif.initials} gradient={notif.gradient} />
+      <Avatar initials={initials} gradient={notif.gradient} />
 
-      <div className="flex-1 min-w-0">
-        <div className="text-sm text-zinc-300 leading-relaxed">
-          <strong className="text-green-400 font-medium">{notif.actor}</strong>{" "}
-          {notif.text}
+      <div className="notif-content">
+        <div className="notif-text">
+          <strong className="notif-actor">{notif.actor}</strong> {notif.text}
         </div>
-        <div className="font-mono text-[11px] text-zinc-500 mt-1">{notif.time}</div>
+        <div className="notif-time">{notif.time}</div>
       </div>
     </div>
   );
 }
 
-// ─── NotifList ────────────────────────────────────────────────────────────────
+// ─── NotifList ───────────────────────────
 
 export function NotifList({ notifs, onRead, onMarkAllRead }) {
   return (
-    <div className="max-w-2xl">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-        <span className="font-mono text-xs text-zinc-500 uppercase tracking-widest">
-          // notifications
-        </span>
-        <button
-          onClick={onMarkAllRead}
-          className="font-mono text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
-        >
+    <div className="notif-list">
+      <div className="notif-header">
+        <span className="notif-title">// notifications</span>
+        <button onClick={onMarkAllRead} className="notif-mark">
           mark all read
         </button>
       </div>
 
       {notifs.length === 0 ? (
-        <div className="py-16 text-center font-mono text-sm text-zinc-600">all caught up ✓</div>
+        <div className="notif-empty">all caught up ✓</div>
       ) : (
-        notifs.map(n => <NotifItem key={n.id} notif={n} onRead={onRead} />)
+        notifs.map(n => (
+          <NotifItem key={n.id} notif={n} onRead={onRead} />
+        ))
       )}
     </div>
   );

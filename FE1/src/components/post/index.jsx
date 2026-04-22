@@ -1,17 +1,15 @@
-// ─── POST COMPONENTS ─────────────────────────────────────────────────────────
-// PostCard, PostFeed
-
+import "./index.css";
 import { useState } from "react";
-import { Avatar, Tag, TagList, CodeBlock, Card, SectionLabel, EmptyState, LoadingSpinner } from "../ui";
+import { Avatar, TagList, CodeBlock, Card, SectionLabel, EmptyState, LoadingSpinner } from "../ui";
 
-// ─── PostCard ────────────────────────────────────────────────────────────────
+// ─── PostCard ───────────────────────────
 
-/**
- * @param {{ post: import("../../types").Post, onOpen: Function, onLike: Function, onSave: Function }} props
- */
 export function PostCard({ post, onOpen, onLike, onSave }) {
-  const [liked,  setLiked]  = useState(post.liked);
-  const [votes,  setVotes]  = useState(post.upvotes);
+  const [liked, setLiked] = useState(!!post.liked);
+  const [votes, setVotes] = useState( post.upvotes ?? post.likesCount ?? 0);
+  const author = post?.author || {  name: post.authorName, initials: post.authorName?.charAt(0)?.toUpperCase()};
+  const timeAgo = post.timeAgo || "recently";
+
 
   function handleLike(e) {
     e.stopPropagation();
@@ -27,45 +25,49 @@ export function PostCard({ post, onOpen, onLike, onSave }) {
   }
 
   return (
-    <Card hover onClick={() => onOpen(post)} className="mb-3">
-      {/* Author row */}
-      <div className="flex items-center gap-3 mb-3">
-        <Avatar initials={post.author.initials} gradient={post.author.gradient} />
+    <Card hover onClick={() => onOpen(post)} className="post-card">
+      {/* Author */}
+      <div className="post-author">
+        <Avatar initials={author.initials || author.name?.charAt(0)?.toUpperCase() || "U"}
+          gradient={author.gradient || "from-gray-500 to-gray-700"} />
         <div>
-          <div className="text-sm font-medium text-zinc-100">{post.author.name}</div>
-          <div className="font-mono text-[11px] text-zinc-500">
-            {post.timeAgo} · {post.readTime}
+          <div className="post-author-name">
+            {author.name || "Unknown"}
+          </div>
+          <div className="post-meta">
+            {timeAgo} · {post.readTime}
           </div>
         </div>
       </div>
 
-      {/* Title + excerpt */}
-      <div className="text-[15px] font-semibold text-zinc-100 leading-snug mb-2">{post.title}</div>
-      <div className="text-sm text-zinc-400 leading-relaxed mb-3">{post.excerpt}</div>
+      {/* Title */}
+      <div className="post-title">{post.title}</div>
+      <div className="post-excerpt"> {post.excerpt || post.content?.slice(0, 120) || ""}</div>
 
-      {/* Code preview */}
-      {post.code && <CodeBlock lang={post.code.lang} snippet={post.code.snippet} />}
+      {/* Code */}
+      {post.code && (
+        <div className="post-code">
+          <CodeBlock lang={post.code.lang} snippet={post.code.snippet} />
+        </div>
+      )}
 
       {/* Tags */}
-      <TagList tags={post.tags} className="mb-3" />
+      <div className="post-tags">
+        <TagList tags={post.tags} />
+      </div>
 
-      {/* Footer: upvote, comment, save */}
-      <div className="flex items-center gap-4">
+      {/* Footer */}
+      <div className="post-footer">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-1.5 font-mono text-xs transition-colors ${
-            liked ? "text-orange-400" : "text-zinc-500 hover:text-zinc-400"
-          }`}
+          className={`post-btn ${liked ? "liked" : ""}`}
         >
           ▲ {votes}
         </button>
-        <span className="flex items-center gap-1.5 font-mono text-xs text-zinc-500">
-          ◎ {post.comments}
-        </span>
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-1.5 font-mono text-xs text-zinc-500 hover:text-zinc-400 ml-auto"
-        >
+
+        <span className="post-info">◎ {post.comments ?? post.commentsCount ?? 0}</span>
+
+        <button onClick={handleSave} className="post-btn save">
           ⊡ save
         </button>
       </div>
@@ -73,25 +75,24 @@ export function PostCard({ post, onOpen, onLike, onSave }) {
   );
 }
 
-// ─── PostFeed ────────────────────────────────────────────────────────────────
+// ─── PostFeed ───────────────────────────
 
-/**
- * @param {{ posts: Post[], loading: boolean, totalCount?: number, onOpen: Function, onLike: Function, onSave: Function }} props
- */
 export function PostFeed({ posts, loading, totalCount, onOpen, onLike, onSave }) {
   const [sort, setSort] = useState("latest");
 
   if (loading) return <LoadingSpinner label="fetching posts..." />;
-  if (!posts?.length) return <EmptyState icon="◌" title="no posts yet" subtitle="be the first to write something" />;
+  if (!posts?.length)
+    return <EmptyState icon="◌" title="no posts yet" subtitle="be the first to write something" />;
 
   return (
-    <div className="p-4 max-w-2xl">
-      <div className="flex items-center justify-between mb-4">
-        <SectionLabel>// {totalCount ?? posts.length} posts this week</SectionLabel>
+    <div className="post-feed">
+      <div className="post-feed-header">
+        <SectionLabel> {totalCount ?? posts.length} posts this week</SectionLabel>
+
         <select
           value={sort}
           onChange={e => setSort(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded-md px-2.5 py-1 text-xs text-zinc-300 font-mono cursor-pointer outline-none"
+          className="post-select"
         >
           <option value="latest">latest</option>
           <option value="top">top</option>
@@ -100,26 +101,33 @@ export function PostFeed({ posts, loading, totalCount, onOpen, onLike, onSave })
       </div>
 
       {posts.map(post => (
-        <PostCard key={post.id} post={post} onOpen={onOpen} onLike={onLike} onSave={onSave} />
+        <PostCard
+          key={post.id}
+          post={post}
+          onOpen={onOpen}
+          onLike={onLike}
+          onSave={onSave}
+        />
       ))}
     </div>
   );
 }
 
-// ─── MiniPostCard (dùng trong Profile) ───────────────────────────────────────
+// ─── MiniPostCard ───────────────────────
 
 export function MiniPostCard({ post, onOpen }) {
   return (
-    <div
-      onClick={() => onOpen(post)}
-      className="bg-zinc-800 border border-zinc-700 hover:border-zinc-600 rounded-xl p-4 mb-2.5 cursor-pointer transition-colors"
-    >
-      <div className="text-sm font-medium text-zinc-200 mb-2">{post.title}</div>
-      <TagList tags={post.tags} className="mb-2" />
-      <div className="flex gap-3">
-        <span className="font-mono text-xs text-zinc-500">▲ {post.upvotes}</span>
-        <span className="font-mono text-xs text-zinc-500">◎ {post.comments}</span>
-        <span className="font-mono text-xs text-zinc-500 ml-auto">{post.timeAgo}</span>
+    <div onClick={() => onOpen(post)} className="mini-post">
+      <div className="mini-title">{post.title}</div>
+
+      <div className="mini-tags">
+        <TagList tags={post.tags} />
+      </div>
+
+      <div className="mini-footer">
+        <span>▲ {post.upvotes ?? post.likesCount ?? 0}</span>
+        <span>◎ {post.comments}</span>
+        <span className="time">{post.timeAgo}</span>
       </div>
     </div>
   );

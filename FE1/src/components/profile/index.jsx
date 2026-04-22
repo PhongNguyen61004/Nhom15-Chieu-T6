@@ -1,66 +1,79 @@
-// ─── PROFILE COMPONENTS ──────────────────────────────────────────────────────
-// ProfileHero, SkillBar
-
+import "./index.css";
 import { Avatar, StatRow } from "../ui";
 
-// ─── SkillBar ─────────────────────────────────────────────────────────────────
-
-export function SkillBar({ name, level }) {
+// ─── SkillBar ───────────────────────────
+export function SkillBar({ name = "", level = 0 }) {
   return (
-    <div className="flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded px-2.5 py-1">
-      <span className="font-mono text-xs text-cyan-300">{name}</span>
-      <div className="w-8 h-0.5 bg-zinc-700 rounded-full overflow-hidden">
+    <div className="skill-bar">
+      <span className="skill-name">{name}</span>
+
+      <div className="skill-track">
         <div
-          className="h-full bg-cyan-400 rounded-full transition-all duration-500"
-          style={{ width: `${level}%` }}
+          className="skill-fill"
+          style={{ width: `${Math.min(Math.max(level, 0), 100)}%` }}
         />
       </div>
     </div>
   );
 }
 
-// ─── ProfileHero ──────────────────────────────────────────────────────────────
+// ─── ProfileHero ────────────────────────
+export function ProfileHero({
+  user,
+  isOwnProfile = false,
+  isFollowing = false,
+  onFollow,
+  onEdit
+}) {
+  
+  const safeUser = user || {};
 
-/**
- * @param {{ user: import("../../types").User, isOwnProfile?: boolean, isFollowing?: boolean, onFollow?: Function, onEdit?: Function }} props
- */
-export function ProfileHero({ user, isOwnProfile = false, isFollowing = false, onFollow, onEdit }) {
   const stats = [
-    { label: "posts",     value: user.stats.posts     },
-    { label: "followers", value: user.stats.followers },
-    { label: "following", value: user.stats.following },
-    { label: "upvotes",   value: user.stats.upvotes   },
+    { label: "posts", value: safeUser?.stats?.posts || 0 },
+    { label: "followers", value: safeUser?.stats?.followers || 0 },
+    { label: "following", value: safeUser?.stats?.following || 0 },
+    { label: "upvotes", value: safeUser?.stats?.upvotes || 0 },
   ];
 
-  return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4">
-      {/* Top row: avatar + info + action */}
-      <div className="flex items-start gap-4 mb-4">
-        <Avatar initials={user.initials} gradient={user.gradient} size="lg" />
+  const skills = Array.isArray(safeUser?.skills) ? safeUser.skills : [];
 
-        <div className="flex-1">
-          <div className="text-lg font-bold text-zinc-100">{user.name}</div>
-          <div className="font-mono text-xs text-zinc-500 mb-2">
-            {user.handle} · joined {user.joinedAt}
+  return (
+    <div className="profile-hero">
+      {/* Top */}
+      <div className="profile-top">
+        <Avatar
+          initials={
+            safeUser?.initials ||
+            safeUser?.name?.charAt(0)?.toUpperCase() ||
+            "U"
+          }
+          gradient={safeUser?.gradient || "from-gray-500 to-gray-700"}
+          size="lg"
+        />
+
+        <div className="profile-info">
+          <div className="profile-name">
+            {safeUser?.name || "Unknown user"}
           </div>
-          <div className="text-sm text-zinc-400 leading-relaxed">{user.bio}</div>
+
+          <div className="profile-meta">
+            {(safeUser?.handle || "@user")} · joined{" "}
+            {safeUser?.joinedAt || "-"}
+          </div>
+
+          <div className="profile-bio">
+            {safeUser?.bio || ""}
+          </div>
         </div>
 
         {isOwnProfile ? (
-          <button
-            onClick={onEdit}
-            className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-xs font-mono text-zinc-400 hover:border-green-500 hover:text-green-400 transition-colors flex-shrink-0"
-          >
+          <button onClick={onEdit} className="btn-edit">
             edit profile
           </button>
         ) : (
           <button
             onClick={onFollow}
-            className={`rounded-md px-3 py-1.5 text-xs font-mono transition-colors flex-shrink-0 border ${
-              isFollowing
-                ? "bg-green-950 border-green-800 text-green-400"
-                : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-green-500 hover:text-green-400"
-            }`}
+            className={`btn-follow ${isFollowing ? "following" : ""}`}
           >
             {isFollowing ? "following" : "follow"}
           </button>
@@ -68,8 +81,14 @@ export function ProfileHero({ user, isOwnProfile = false, isFollowing = false, o
       </div>
 
       {/* Skills */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {user.skills.map(s => <SkillBar key={s.name} {...s} />)}
+      <div className="profile-skills">
+        {skills.map((s, idx) => (
+          <SkillBar
+            key={s.name || idx}
+            name={s.name || ""}
+            level={typeof s.level === "number" ? s.level : 0}
+          />
+        ))}
       </div>
 
       {/* Stats */}

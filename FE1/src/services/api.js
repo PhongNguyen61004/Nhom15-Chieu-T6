@@ -1,171 +1,156 @@
-// ─── API SERVICE LAYER ────────────────────────────────────────────────────────
-import { MOCK_POSTS, MOCK_COMMENTS } from "../constants/mockData";
 
-function normalizeBaseUrl(raw) {
-  const url = String(raw || "").replace(/\/+$/, "");
-  if (!url) return "/api";
-  if (url.endsWith("/api")) return url;
-  return `${url}/api`;
-}
+const BASE_URL = "https://nhom15-chieu-t6.onrender.com/api";
 
-const RAW_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "/api";
-const BASE_URL = normalizeBaseUrl(RAW_BASE_URL);
-const DEMO_AUTHOR_ID = "670000000000000000000010";
-
-function minutesFromReadTime(readTime) {
-  const match = String(readTime || "").match(/\d+/);
-  return match ? Number(match[0]) : 0;
-}
-
-function normalizeMockPost(post, index = 0) {
-  const now = Date.now();
-  return {
-    id: post.id,
-    title: post.title,
-    content: post.excerpt || "",
-    coverImage: `https://picsum.photos/id/${101 + index}/800/400`,
-    tags: (post.tags || []).map((t) => (typeof t === "string" ? t : t.label)).filter(Boolean),
-    viewsCount: post.viewsCount ?? (post.upvotes || 0) * 3,
-    likesCount: post.likesCount ?? post.upvotes ?? 0,
-    commentsCount: post.commentsCount ?? post.comments ?? 0,
-    readingTime: post.readingTime ?? minutesFromReadTime(post.readTime),
-    publishedAt: post.publishedAt || new Date(now - index * 86400000).toISOString(),
-    authorId: post.authorId || `mock-author-${post.id}`,
-  };
-}
-
-function getMockPosts() {
-  return MOCK_POSTS.map((post, index) => normalizeMockPost(post, index));
-}
-
-function getMockComments(postId) {
-  return MOCK_COMMENTS.map((comment, index) => ({
-    id: Number(`${postId}${index + 1}`),
-    postId,
-    authorId: comment.author || "mock-user",
-    content: comment.text || "",
-    likesCount: comment.upvotes || 0,
-    createdAt: new Date(Date.now() - (index + 1) * 3600000).toISOString(),
-    isEdited: false,
-  }));
-}
-
-function getToken() {
-  return localStorage.getItem("token");
-}
-
-function getCurrentUserId() {
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.id && /^[a-fA-F0-9]{24}$/.test(String(user.id))) return String(user.id);
-  } catch {}
-  return DEMO_AUTHOR_ID;
+function getCookie(name) {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith(name + "="))
+    ?.split("=")[1];
 }
 
 async function request(path, options = {}) {
-  const token = getToken();
-  const extraHeaders = options.headers || {};
-  const { headers: _ignored, ...restOptions } = options;
+  const token = getCookie("access_token");
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...extraHeaders,
-    },
-    ...restOptions,
+    credentials: "include",
+    ...options,
+    headers,
   });
+
   if (!res.ok) {
     let message = `API error ${res.status}: ${path}`;
     try {
-      const payload = await res.json();
-      if (payload?.message) message = payload.message;
-    } catch {}
+      const data = await res.json();
+      if (data?.message) message = data.message;
+    } catch { }
     throw new Error(message);
   }
+  if (res.status === 204) return null;
+
+
   return res.json();
 }
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
+let cachedProfile = null;
+
+// ─── AUTH ─────────────────────────────────────────────────────
 export const authService = {
   register: (data) =>
-    request("/User/register", { method: "POST", body: JSON.stringify(data) }),
+    request("/User/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
   login: (data) =>
-    request("/User/login", { method: "POST", body: JSON.stringify(data) }),
+    request("/User/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  logout: () =>
+    request("/User/logout", {
+      method: "POST",
+    }),
 };
 
-// ─── Users ───────────────────────────────────────────────────────────────────
+// ─── USERS ────────────────────────────────────────────────────
 export const userService = {
   getById: (id) => request(`/User/${id}`),
-  getByUsername: (username) => request(`/User/username/${username}`),
+
+  getByUsername: (username) =>
+    request(`/User/username/${username}`),
+
+
+  getProfile: async () => {
+    if (cachedProfile) return cachedProfile;
+
+    const data = await request("/users/profile");
+    cachedProfile = data;
+    return data;
+  },
+
+  // optional: clear cache khi logout
+  clearCache: () => {
+    cachedProfile = null;
+  },
 };
 
-// ─── Posts ───────────────────────────────────────────────────────────────────
+// ─── POSTS ────────────────────────────────────────────────────
 export const postService = {
-  getAll: async () => {
-    try {
-      return await request("/posts");
-    } catch (err) {
-      console.warn("[postService.getAll] fallback to mock posts:", err?.message || err);
-      return getMockPosts();
-    }
-  },
-  getById: async (id) => {
-    try {
-      return await request(`/posts/${id}`);
-    } catch {
-      return getMockPosts().find((post) => String(post.id) === String(id)) || null;
-    }
-  },
+  getAll: () => request("/posts"),
+
+  getById: (id) => request(`/posts/${id}`),
+
   create: (data) =>
     request("/posts", {
       method: "POST",
-      headers: { authorId: getCurrentUserId() },
+      headers: {
+        authorId: data.authorId,
+      },
       body: JSON.stringify(data),
     }),
+
   update: (id, data) =>
-    request(`/posts/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    request(`/posts/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   delete: (id) =>
-    request(`/posts/${id}`, { method: "DELETE" }),
-  getByAuthor: async (authorId) => {
-    try {
-      return await request(`/posts/author/${authorId}`);
-    } catch {
-      const mockPosts = getMockPosts();
-      if (!authorId || String(authorId) === "guest-devlog") return mockPosts;
-      return mockPosts.filter((post) => String(post.authorId) === String(authorId));
+    request(`/posts/${id}`, {
+      method: "DELETE",
+    }),
+
+  getByAuthor: async () => {
+    const profile = await userService.getProfile();
+
+    if (!profile?.id) {
+      throw new Error("User not authenticated");
     }
+
+    return request(`/posts/author/${profile.id}`);
   },
 };
 
-// ─── Comments ────────────────────────────────────────────────────────────────
+// ─── COMMENTS ─────────────────────────────────────────────────
 export const commentService = {
-  getByPost: async (postId) => {
-    try {
-      return await request(`/comments/post/${postId}`);
-    } catch {
-      return getMockComments(postId);
-    }
-  },
+  getByPost: (postId) => request(`/comments/post/${postId}`),
+
   getById: (id) => request(`/comments/${id}`),
+
   create: (data) =>
     request("/comments", {
       method: "POST",
-      headers: { authorId: getCurrentUserId() },
+      headers: {
+        authorId: data.authorId,
+      },
       body: JSON.stringify(data),
     }),
+
   update: (id, data) =>
     request(`/comments/${id}`, {
       method: "PUT",
-      headers: { authorId: getCurrentUserId() },
+      headers: {
+        authorId: data.authorId,
+      },
       body: JSON.stringify(data),
     }),
+
   delete: (id, authorId) =>
     request(`/comments/${id}`, {
       method: "DELETE",
-      headers: { authorId: authorId || getCurrentUserId() },
+      headers: {
+        authorId: authorId,
+      },
     }),
 };

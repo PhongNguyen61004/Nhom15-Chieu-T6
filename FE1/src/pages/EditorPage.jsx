@@ -1,5 +1,5 @@
-// ─── EDITOR PAGE ──────────────────────────────────────────────────────────────
 import { usePostEditor } from "../hooks";
+import "./EditorPage.css";
 
 export default function EditorPage({ onSuccess }) {
   const {
@@ -11,50 +11,72 @@ export default function EditorPage({ onSuccess }) {
     publish,
   } = usePostEditor(onSuccess);
 
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (publishing) return;
+
+    await publish();
+  }
+
   return (
-    <div className="p-4 max-w-2xl">
-      <p className="font-mono text-xs text-zinc-500 mb-4">// new post</p>
+    <div className="editor-container">
+      <p className="editor-title"> new post</p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-950 border border-red-800 rounded-md text-red-400 text-xs font-mono">
+        <div className="editor-error">
           {error}
         </div>
       )}
 
-      <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="editor-form">
         <Field label="title" value={title} onChange={setTitle} />
-        <Field label="cover image url" value={coverImage} onChange={setCoverImage} />
-        <Field label="tags (dấu phẩy phân cách)" value={tags} onChange={setTags} />
+
+        <Field
+          label="cover image url"
+          value={coverImage}
+          onChange={setCoverImage}
+        />
+
+        <Field
+          label="tags (phân cách bằng dấu phẩy)"
+          value={tags}
+          onChange={setTags}
+        />
+
         <div>
-          <label className="block font-mono text-xs text-zinc-500 mb-1">content</label>
+          <label className="editor-label">content</label>
           <textarea
             value={body}
-            onChange={e => setBody(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             rows={12}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-200 font-mono focus:outline-none focus:border-green-500 resize-none"
+            className="editor-textarea"
+            placeholder="Viết nội dung bài viết..."
           />
         </div>
+
         <button
-          onClick={publish}
+          type="submit"
           disabled={publishing}
-          className="bg-green-500 hover:bg-green-400 disabled:opacity-50 text-zinc-950 font-mono font-semibold text-sm px-6 py-2 rounded-md transition-colors"
+          className="editor-submit"
         >
           {publishing ? "publishing..." : "publish"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
 
+// ─── FIELD ─────────────────────────
+
 function Field({ label, value, onChange }) {
   return (
     <div>
-      <label className="block font-mono text-xs text-zinc-500 mb-1">{label}</label>
+      <label className="editor-label">{label}</label>
       <input
         type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-200 font-mono focus:outline-none focus:border-green-500"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        className="editor-input"
       />
     </div>
   );

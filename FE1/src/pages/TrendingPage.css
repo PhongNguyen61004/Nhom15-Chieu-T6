@@ -1,0 +1,82 @@
+.trending-container {
+  max-width: 720px;
+  padding: 20px;
+}
+
+.trending-title {
+  margin-bottom: 16px;
+}
+
+.trending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.trending-item {
+  position: relative;
+}
+
+.trending-card {
+  cursor: pointer;
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 12px;
+  padding: 16px;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trending-card:hover {
+  border-color: #52525b;
+  background: rgba(24, 24, 27, 0.8);
+}
+
+.trending-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-family: monospace;
+  font-size: 10px;
+  color: #4ade80;
+  background: #052e16;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.trending-post-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e4e4e7;
+}
+
+.trending-meta {
+  display: flex;
+  gap: 12px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #71717a;
+}
+
+.trending-meta .date {
+  margin-left: auto;
+}
+
+.trending-state {
+  padding: 24px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #71717a;
+}
+
+.trending-error {
+  padding: 24px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #f87171;
+}

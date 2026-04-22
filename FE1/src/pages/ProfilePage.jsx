@@ -1,56 +1,86 @@
-// ─── PROFILE PAGE ────────────────────────────────────────────────────────────
+import "./ProfilePage.css";
 import { useCurrentUser, useAuthorPosts } from "../hooks";
 
 export default function ProfilePage({ onOpenPost }) {
-  const { user } = useCurrentUser();
-  const { posts, loading } = useAuthorPosts(user?.id);
+  const { user, loading: userLoading } = useCurrentUser();
+  const { posts = [], loading: postLoading } = useAuthorPosts();
 
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.reload();
+  async function logout() {
+    try {
+      await fetch("/api/User/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      window.location.reload();
+    }
+  }
+
+  if (userLoading) {
+    return <div className="profile-state"> loading profile...</div>;
+  }
+
+  if (!user) {
+    return <div className="profile-state"> not logged in</div>;
   }
 
   return (
-    <div className="p-4 max-w-2xl">
-      {/* Profile card */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-6">
-        <div className="flex items-start justify-between mb-3">
+    <div className="profile-container">
+      {/* PROFILE CARD */}
+      <div className="profile-card">
+        <div className="profile-header">
           <div>
-            <div className="text-lg font-semibold text-zinc-100">{user?.name || user?.username}</div>
-            <div className="font-mono text-xs text-zinc-500">@{user?.username}</div>
+            <div className="profile-name">
+              {user.name || user.username || "Unknown"}
+            </div>
+
+            <div className="profile-username">
+              @{user.username || "user"}
+            </div>
           </div>
-          <button
-            onClick={logout}
-            className="font-mono text-xs text-zinc-500 hover:text-red-400 border border-zinc-700 px-3 py-1.5 rounded-md transition-colors"
-          >
+
+          <button onClick={logout} className="profile-logout">
             logout
           </button>
         </div>
-        {user?.bio && <p className="text-sm text-zinc-400 mb-3">{user.bio}</p>}
-        <div className="flex gap-4 font-mono text-xs text-zinc-500">
-          <span>👥 {user?.followersCount || 0} followers</span>
-          <span>{user?.followingCount || 0} following</span>
-          {user?.location && <span>📍 {user.location}</span>}
+
+        {user.bio && (
+          <p className="profile-bio">{user.bio}</p>
+        )}
+
+        <div className="profile-stats">
+          <span>👥 {user.stats?.followers ?? 0} followers</span>
+          <span>{user.stats?.following ?? 0} following</span>
+          {user.location && <span>📍 {user.location}</span>}
         </div>
       </div>
 
-      <p className="font-mono text-xs text-zinc-500 mb-3">// my posts</p>
+      {/* POSTS */}
+      <p className="profile-section"> my posts</p>
 
-      {loading && <p className="font-mono text-xs text-zinc-500">// loading...</p>}
+      {postLoading && (
+        <p className="profile-state"> loading posts...</p>
+      )}
 
-      <div className="space-y-3">
-        {posts.map(post => (
+      {!posts.length && !postLoading && (
+        <p className="profile-state"> no posts yet</p>
+      )}
+
+      <div className="profile-posts">
+        {posts.map((post) => (
           <div
             key={post.id}
-            onClick={() => onOpenPost(post)}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-zinc-700 transition-colors"
+            onClick={() => onOpenPost?.(post)}
+            className="profile-post"
           >
-            <h3 className="text-sm font-medium text-zinc-100 mb-1">{post.title}</h3>
-            <div className="flex gap-3 font-mono text-[11px] text-zinc-500">
-              <span>👁 {post.viewsCount}</span>
-              <span>❤️ {post.likesCount}</span>
-              <span>💬 {post.commentsCount}</span>
+            <h3 className="post-title">
+              {post.title || "Untitled"}
+            </h3>
+
+            <div className="post-meta">
+              <span>👁 {post.viewsCount ?? 0}</span>
+              <span>❤️ {post.likesCount ?? 0}</span>
+              <span>💬 {post.commentsCount ?? 0}</span>
             </div>
           </div>
         ))}

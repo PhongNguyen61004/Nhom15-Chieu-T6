@@ -1,239 +1,237 @@
-// ─── CUSTOM HOOKS ────────────────────────────────────────────────────────────
 import { useState, useEffect, useCallback } from "react";
-import { postService, commentService, authService } from "../services/api";
+import {
+  postService,
+  commentService,
+  authService,
+  userService,
+} from "../services/api";
 
-const TEMP_GUEST_USER = {
-  id: "guest-devlog",
-  username: "guest",
-  name: "Guest User",
-  initials: "GU",
-  gradient: "from-green-400 to-cyan-400",
-  bio: "Temporary guest mode while auth backend is unavailable.",
-};
-
-function getStoredUserOrGuest() {
-  try {
-    const stored = JSON.parse(localStorage.getItem("user"));
-    if (stored && typeof stored === "object") return stored;
-  } catch {}
-  return TEMP_GUEST_USER;
-}
-
-// ─── Generic fetch hook ───────────────────────────────────────────────────────
+// ─── Generic fetch hook ─────────────────────────────────────────────
 function useFetch(fetchFn, deps = []) {
-  const [data, setData]       = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
       const result = await fetchFn();
       setData(result);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Unknown error");
     } finally {
       setLoading(false);
     }
-  }, deps); // eslint-disable-line
+  }, deps);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return { data, loading, error, refetch: load };
 }
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
+// ─── AUTH ───────────────────────────────────────────────────────────
 export function useAuth() {
-  const [user, setUser] = useState(() => getStoredUserOrGuest());
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
+  const [error, setError] = useState(null);
 
   async function login(email, password) {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
+
     try {
-      // Backend nhận: { UsernameOrEmail, Password } (Pascal case)
-      const res = await authService.login({
+      await authService.login({
         UsernameOrEmail: email,
         Password: password,
       });
 
-      // Backend có thể trả token ở nhiều field khác nhau — thử hết
-      const token = res.token || res.accessToken || res.Token || res.AccessToken;
-      // User info có thể nằm ở res.user hoặc chính res
-      const user  = res.user || res.User || res.data || res;
 
-      if (!token) throw new Error("Không nhận được token từ server.");
+      const me = await userService.getProfile();
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user);
-
-      // Log để debug — xoá sau khi xác nhận hoạt động
-      console.log("[login] response:", res);
-      console.log("[login] token:", token);
-      console.log("[login] user:", user);
-
-      return user;
+      setUser(me);
+      return me;
     } catch (err) {
-      console.error("[login] error:", err);
-      setError(err.message || "Đăng nhập thất bại. Kiểm tra lại email/password.");
+      setError("Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
   }
 
-  async function register(data) {
-    setLoading(true); setError(null);
-    try {
-      // Backend yêu cầu bio/avatar/location là string (không được null)
-      const res = await authService.register({
-        Username: data.username,
-        Name:     data.name,
-        Email:    data.email,
-        Password: data.password,
-        Bio:      "",
-        Avatar:   "",
-        Location: "",
-      });
-      console.log("[register] response:", res);
-      return res.user || res.User || res.data || res;
-    } catch (err) {
-      console.error("[register] error:", err);
-      setError(err.message || "Đăng ký thất bại. Email hoặc username đã tồn tại.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+  async function logout() {
+    await fetch("/api/User/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     setUser(null);
   }
 
-  return { user, loading, error, login, register, logout };
+  return { user, loading, error, login, logout };
 }
 
-// ─── Current User ─────────────────────────────────────────────────────────────
+// ─── CURRENT USER ───────────────────────────────────────────────────
 export function useCurrentUser() {
-  const [user] = useState(() => getStoredUserOrGuest());
-  return { user, loading: false };
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    userService.getProfile()
+      .then((data) => {
+
+        setUser({
+          id: data.id,
+          name: data.name || data.username,
+          handle: "@" + data.username,
+          bio: data.bio,
+          avatar: data.avatar,
+          joinedAt: data.createdAt,
+
+          stats: {
+            posts: 0,
+            followers: data.followersCount,
+            following: data.followingCount,
+            upvotes: 0
+          },
+
+          skills: [],
+          initials: data.name?.charAt(0)?.toUpperCase()
+        });
+      })
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { user, loading };
 }
 
-// ─── Posts ───────────────────────────────────────────────────────────────────
+// ─── POSTS ──────────────────────────────────────────────────────────
 export function usePosts() {
-  const { data, loading, error, refetch } = useFetch(() => postService.getAll(), []);
-  const posts = data || [];
+  const { data, loading, error, refetch } = useFetch(
+    () => postService.getAll(),
+    []
+  );
 
-  async function toggleLike(postId) {
-    // API chưa có endpoint like, để placeholder
-    console.log("like post", postId);
-  }
-
-  async function savePost(postId) {
-    console.log("save post", postId);
-  }
-
-  return { posts, loading, error, toggleLike, savePost, refetch };
+  return {
+    posts: data || [],
+    loading,
+    error,
+    refetch,
+    toggleLike: (id) => console.log("like", id),
+    savePost: (id) => console.log("save", id),
+  };
 }
 
 export function usePost(id) {
-  const { data: post, loading, error } = useFetch(() => postService.getById(id), [id]);
-  return { post, loading, error };
+  const { data, loading, error } = useFetch(
+    () => postService.getById(id),
+    [id]
+  );
+
+  return { post: data, loading, error };
 }
 
-export function useAuthorPosts(authorId) {
+export function useAuthorPosts() {
   const { data, loading, error } = useFetch(
-    () => authorId ? postService.getByAuthor(authorId) : Promise.resolve([]),
-    [authorId]
+    () => postService.getByAuthor(),
+    []
   );
+
   return { posts: data || [], loading, error };
 }
 
-// ─── Comments ────────────────────────────────────────────────────────────────
+// ─── COMMENTS ───────────────────────────────────────────────────────
 export function useComments(postId) {
   const [comments, setComments] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const loadComments = useCallback(async () => {
+  const load = useCallback(async () => {
     if (!postId) return;
+
     setLoading(true);
+
     try {
       const data = await commentService.getByPost(postId);
-      setComments(data);
-    } catch (err) {
-      setComments([]);
+      const mapped = (data || []).map(c => ({
+        ...c,
+        id: c.id || c._id, 
+      }));
+
+      setComments(mapped);
     } finally {
       setLoading(false);
     }
   }, [postId]);
 
-  useEffect(() => { loadComments(); }, [loadComments]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function addComment(text, parentId = null) {
-    const currentUser = getStoredUserOrGuest();
-    if (!currentUser) return;
-    try {
-      const newComment = await commentService.create({
-        postId,
-        content: text,
-        ...(parentId ? { parentId } : {}),
-      });
-      setComments(prev => [...prev, newComment]);
-    } catch (err) {
-      console.error("Lỗi tạo comment", err);
-    }
+    const profile = await userService.getProfile();
+
+    const newComment = await commentService.create({
+      postId,
+      content: text,
+      authorId: profile.id,
+    });
+
+    setComments((prev) => [...prev, newComment]);
   }
 
   async function deleteComment(commentId) {
-    const currentUser = getStoredUserOrGuest();
-    if (!currentUser) return;
-    try {
-      await commentService.delete(commentId, currentUser.id);
-      setComments(prev => prev.filter(c => c.id !== commentId));
-    } catch (err) {
-      console.error("Lỗi xoá comment", err);
-    }
+    const profile = await userService.getProfile();
+
+    await commentService.delete(commentId, profile.id);
+    setComments((prev) => prev.filter((c) => (c.id || c._id) !== commentId));
   }
 
   function likeComment(commentId) {
-    // API chưa có endpoint like comment
-    setComments(prev =>
-      prev.map(c => c.id !== commentId ? c : { ...c, likesCount: (c.likesCount || 0) + 1 })
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId
+          ? { ...c, likesCount: (c.likesCount || 0) + 1 }
+          : c
+      )
     );
   }
 
   return { comments, loading, addComment, deleteComment, likeComment };
 }
 
-// ─── Post Editor ──────────────────────────────────────────────────────────────
+// ─── POST EDITOR ────────────────────────────────────────────────────
 export function usePostEditor(onSuccess) {
-  const [title,      setTitle]      = useState("");
-  const [body,       setBody]       = useState("");
-  const [tags,       setTags]       = useState("");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [tags, setTags] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [publishing, setPublishing] = useState(false);
-  const [error,      setError]      = useState(null);
+  const [error, setError] = useState(null);
 
   async function publish() {
+
     if (!title.trim() || !body.trim()) {
       setError("Tiêu đề và nội dung không được để trống.");
       return;
     }
-    const currentUser = getStoredUserOrGuest();
-    if (!currentUser) { setError("Bạn chưa đăng nhập."); return; }
 
     setPublishing(true);
     setError(null);
+
     try {
+      const profile = await userService.getProfile();
+      console.log(profile)
       await postService.create({
-        title,
-        content: body,
-        coverImage: coverImage.trim() || "https://picsum.photos/seed/devlog/800/400",
-        tags: tags.split(",").map(t => t.trim()).filter(Boolean),
+        title: title.trim(),
+        content: body.trim(),
+        coverImage: coverImage?.trim() || "",
+        tags: tags ? tags.split(",").map(t => t.trim()).filter(Boolean) : [],
+        authorId: profile.id,
         status: "published",
       });
+
       onSuccess?.();
     } catch (err) {
       setError(err.message);
@@ -242,14 +240,27 @@ export function usePostEditor(onSuccess) {
     }
   }
 
-  return { title, setTitle, body, setBody, tags, setTags, coverImage, setCoverImage, publishing, error, publish };
+  return {
+    title,
+    setTitle,
+    body,
+    setBody,
+    tags,
+    setTags,
+    coverImage,
+    setCoverImage,
+    publishing,
+    error,
+    publish,
+  };
 }
 
-// ─── Notifications (mock — API chưa có) ──────────────────────────────────────
+// ─── NOTIFICATIONS ──────────────────────────────────────────────────
 export function useNotifications() {
-  const [notifs] = useState([]);
-  const unreadCount = 0;
-  function markAllRead() {}
-  function markRead() {}
-  return { notifs, unreadCount, markAllRead, markRead };
+  return {
+    notifs: [],
+    unreadCount: 0,
+    markAllRead: () => { },
+    markRead: () => { },
+  };
 }
