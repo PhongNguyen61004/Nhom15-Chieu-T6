@@ -68,7 +68,7 @@ export const postService = {
 
   getById: (id) => request(`/posts/${id}`),
 
- create: (data) => {
+  create: (data) => {
   const { authorId, ...safeData } = data; 
 
   return request("/posts", {
@@ -119,7 +119,7 @@ export const commentService = {
       method: "PUT",body: JSON.stringify(data),
     }),
 
-delete: (id) =>
+ delete: (id) =>
   request(`/comments/${id}`, {
     method: "DELETE",
   }),
