@@ -14,8 +14,7 @@ namespace BE1.Services
             _userRepo = userRepo;
         }
 
-
-
+        // ─── PUBLIC QUERIES ───────────────────────────────────────────
 
         public async Task<UserResponse?> GetByIdAsync(string id)
         {

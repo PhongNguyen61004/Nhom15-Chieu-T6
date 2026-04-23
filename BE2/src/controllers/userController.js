@@ -1,11 +1,9 @@
 const User = require('../models/User');
-
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 // 1. Lấy tất cả User (GET /users)
 exports.getAllUsers = async (req, res) => {
   try {
-
     const { name } = req.query;
     let query = {};
     if (name) {
@@ -23,9 +21,7 @@ exports.getUserById = async (req, res) => {
     
     const user = await User.findById(req.params.id); 
     if (!user) return res.status(404).json({ message: 'Không tìm thấy user' });
-
     res.status(200).json({ success: true, data: user }); 
-
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -34,7 +30,6 @@ exports.getUserById = async (req, res) => {
 // 2. CREATE
 exports.createUser = async (req, res) => {
   try {
-
     const { username, email, password, name, bio, avatar, location } = req.body;
 
     // Kiểm tra xem đã nhập password chưa
@@ -67,7 +62,6 @@ exports.createUser = async (req, res) => {
 // 3. UPDATE
 exports.updateUser = async (req, res) => {
   try {
-
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       req.body, 

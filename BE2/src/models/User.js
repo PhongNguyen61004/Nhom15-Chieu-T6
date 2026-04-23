@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true }, // Chú ý: Đổi từ 'password' thành 'passwordHash'
@@ -15,7 +14,6 @@ const userSchema = new mongoose.Schema({
   isBanned: { type: Boolean, default: false }, 
   
   createdAt: { type: Date, default: Date.now }
-
 
 });
 
